@@ -12,6 +12,7 @@ export class DocumentsService {
       type: createDocumentDto.type != null ? String(createDocumentDto.type) : undefined,
       numSolicitud: createDocumentDto.numSolicitud != null ? String(createDocumentDto.numSolicitud) : undefined,
       userId: createDocumentDto.userId != null ? Number(createDocumentDto.userId) : undefined,
+      created: new Date(createDocumentDto.created),
       volante: createDocumentDto.volante != null ? String(createDocumentDto.volante) : undefined,
       folio: createDocumentDto.folio != null ? String(createDocumentDto.folio) : undefined,
       comments: createDocumentDto.comments != null ? createDocumentDto.comments : undefined,

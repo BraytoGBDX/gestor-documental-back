@@ -29,17 +29,18 @@ export class CreateDocumentDto {
   userId: number;
 
   @ApiProperty({
-    required: false,
-    example: 'VOL-123',
+    example: '2026-01-09T10:30:00.000Z',
+    description: 'Fecha real de creación del documento',
   })
+  @IsDateString()
+  created: string;
+
+  @ApiProperty({ required: false, example: 'VOL-123' })
   @IsOptional()
   @IsString()
   volante?: string;
 
-  @ApiProperty({
-    required: false,
-    example: 'FOL-456',
-  })
+  @ApiProperty({ required: false, example: 'FOL-456' })
   @IsOptional()
   @IsString()
   folio?: string;
@@ -68,10 +69,7 @@ export class CreateDocumentDto {
   @IsDateString()
   expiredAt?: string;
 
-  @ApiProperty({
-    required: false,
-    example: false,
-  })
+  @ApiProperty({ required: false, example: false })
   @IsOptional()
   @IsBoolean()
   isArchived?: boolean;
