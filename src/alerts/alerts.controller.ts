@@ -2,7 +2,9 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { AlertsService } from './alerts.service';
 import { CreateAlertDto } from './dto/create-alert.dto';
 import { UpdateAlertDto } from './dto/update-alert.dto';
+import { ApiTags, ApiOperation } from '@nestjs/swagger';
 
+@ApiTags('alerts')
 @Controller('alerts')
 export class AlertsController {
   constructor(private readonly alertsService: AlertsService) {}
@@ -15,6 +17,12 @@ export class AlertsController {
   @Get()
   findAll() {
     return this.alertsService.findAll();
+  }
+
+  @Get('by-document/:documentId')
+  @ApiOperation({ summary: 'Find alerts by document id' })
+  findByDocument(@Param('documentId') documentId: string) {
+    return this.alertsService.findByDocument(+documentId);
   }
 
   @Get(':id')

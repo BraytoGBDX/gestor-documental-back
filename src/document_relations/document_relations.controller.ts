@@ -2,7 +2,9 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { DocumentRelationsService } from './document_relations.service';
 import { CreateDocumentRelationDto } from './dto/create-document_relation.dto';
 import { UpdateDocumentRelationDto } from './dto/update-document_relation.dto';
+import { ApiTags, ApiOperation } from '@nestjs/swagger';
 
+@ApiTags('document-relations')
 @Controller('document-relations')
 export class DocumentRelationsController {
   constructor(private readonly documentRelationsService: DocumentRelationsService) {}
@@ -15,6 +17,12 @@ export class DocumentRelationsController {
   @Get()
   findAll() {
     return this.documentRelationsService.findAll();
+  }
+
+  @Get('by-document/:documentId')
+  @ApiOperation({ summary: 'Find relations by document id' })
+  findByDocument(@Param('documentId') documentId: string) {
+    return this.documentRelationsService.findByDocument(+documentId);
   }
 
   @Get(':id')

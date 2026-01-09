@@ -2,7 +2,9 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { AuditLogService } from './audit_log.service';
 import { CreateAuditLogDto } from './dto/create-audit_log.dto';
 import { UpdateAuditLogDto } from './dto/update-audit_log.dto';
+import { ApiTags, ApiOperation } from '@nestjs/swagger';
 
+@ApiTags('audit-log')
 @Controller('audit-log')
 export class AuditLogController {
   constructor(private readonly auditLogService: AuditLogService) {}
@@ -15,6 +17,12 @@ export class AuditLogController {
   @Get()
   findAll() {
     return this.auditLogService.findAll();
+  }
+
+  @Get('by-document/:documentId')
+  @ApiOperation({ summary: 'Find audit logs by document id' })
+  findByDocument(@Param('documentId') documentId: string) {
+    return this.auditLogService.findByDocument(+documentId);
   }
 
   @Get(':id')

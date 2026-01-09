@@ -2,7 +2,9 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { DocumentAssignmentsService } from './document_assignments.service';
 import { CreateDocumentAssignmentDto } from './dto/create-document_assignment.dto';
 import { UpdateDocumentAssignmentDto } from './dto/update-document_assignment.dto';
+import { ApiTags, ApiOperation } from '@nestjs/swagger';
 
+@ApiTags('document-assignments')
 @Controller('document-assignments')
 export class DocumentAssignmentsController {
   constructor(private readonly documentAssignmentsService: DocumentAssignmentsService) {}
@@ -15,6 +17,12 @@ export class DocumentAssignmentsController {
   @Get()
   findAll() {
     return this.documentAssignmentsService.findAll();
+  }
+
+  @Get('by-document/:documentId')
+  @ApiOperation({ summary: 'Find assignments by document id' })
+  findByDocument(@Param('documentId') documentId: string) {
+    return this.documentAssignmentsService.findByDocument(+documentId);
   }
 
   @Get(':id')
