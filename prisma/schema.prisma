@@ -36,7 +36,7 @@ model Users {
   id           Int       @id @default(autoincrement())
   name         String
   lastname     String
-  departmentId Int
+  departmentId Int?
   role         USER_ROLE
   isActive     Boolean   @default(true)
   createdAt    DateTime  @default(now())
@@ -45,7 +45,7 @@ model Users {
   notifications Notifications[]
   auditLogs     Audit_log[]
 
-  department Departments @relation(fields: [departmentId], references: [id])
+  department Departments? @relation(fields: [departmentId], references: [id])
 
   documents            Documents[]
   documentsAssignments Documents_assignments[]

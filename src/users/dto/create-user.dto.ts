@@ -19,9 +19,10 @@ export class CreateUserDto {
   lastname: string;
 
   @ApiProperty({required:false, example: 3 })
+  @IsOptional()
   @IsInt()
   @Min(1)
-  departmentId: number;
+  departmentId?: number;
 
   @ApiProperty({
     enum: USER_ROLE,

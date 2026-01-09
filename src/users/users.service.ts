@@ -18,7 +18,7 @@ export class UsersService {
       isActive: createUserDto.isActive != null ? Boolean(createUserDto.isActive) : true,
     };
 
-    if (!data.name || !data.lastname || data.departmentId == null || !data.role) {
+    if (!data.name || !data.lastname || !data.role) {
       throw new BadRequestException('missing required user fields');
     }
 
