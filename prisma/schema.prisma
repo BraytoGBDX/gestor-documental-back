@@ -78,10 +78,12 @@ model Documents {
   folio        String?
   comments     Json?
   asunto       String
-  createdAt    DateTime
+  created    DateTime
   isArchived   Boolean    @default(false)
   archivedAt   DateTime?  @map("archived_at")
   expiredAt    DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
   notifications Notifications[]
   auditLogs     Audit_log[]
