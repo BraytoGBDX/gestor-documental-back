@@ -27,7 +27,6 @@ model Departments {
 }
 
 enum USER_ROLE {
-  ADMIN
   USER
   SUPERADMIN
 }
