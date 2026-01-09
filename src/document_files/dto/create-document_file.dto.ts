@@ -1,15 +1,29 @@
 import { ApiProperty } from '@nestjs/swagger';
+import {
+  IsInt,
+  IsString,
+  Min,
+} from 'class-validator';
 
 export class CreateDocumentFileDto {
-	@ApiProperty()
-	documentId: number;
+  @ApiProperty({ example: 10 })
+  @IsInt()
+  @Min(1)
+  documentId: number;
 
-	@ApiProperty()
-	name: string;
+  @ApiProperty({ example: 'oficio_123.pdf' })
+  @IsString()
+  name: string;
 
-	@ApiProperty()
-	userId: number;
+  @ApiProperty({ example: 25 })
+  @IsInt()
+  @Min(1)
+  userId: number;
 
-	@ApiProperty()
-	filePath: string;
+  @ApiProperty({
+    example: '/uploads/documents/oficio_123.pdf',
+    description: 'Ruta o URL del archivo',
+  })
+  @IsString()
+  filePath: string;
 }

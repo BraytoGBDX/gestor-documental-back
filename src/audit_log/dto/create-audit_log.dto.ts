@@ -1,16 +1,40 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { AUDIT_ACTION } from '@prisma/client';
+import {
+  IsEnum,
+  IsInt,
+  IsObject,
+  IsOptional,
+  Min,
+} from 'class-validator';
 
 export class CreateAuditLogDto {
-	@ApiProperty()
-	documentId: number;
+  @ApiProperty({ example: 10 })
+  @IsInt()
+  @Min(1)
+  documentId: number;
 
-	@ApiProperty({ enum: Object.values(AUDIT_ACTION) })
-	action: AUDIT_ACTION;
+  @ApiProperty({
+    enum: AUDIT_ACTION,
+    example: AUDIT_ACTION.ARCHIVED,
+  })
+  @IsEnum(AUDIT_ACTION)
+  action: AUDIT_ACTION;
 
-	@ApiProperty()
-	userId: number;
+  @ApiProperty({ example: 25 })
+  @IsInt()
+  @Min(1)
+  userId: number;
 
-	@ApiProperty({ required: false, type: Object })
-	details?: any;
+  @ApiProperty({
+    required: false,
+    type: Object,
+    example: {
+      previousStatus: 'DRAFT',
+      newStatus: 'SENT',
+    },
+  })
+  @IsOptional()
+  @IsObject()
+  details?: Record<string, any>;
 }
