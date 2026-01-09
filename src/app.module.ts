@@ -9,9 +9,10 @@ import { DocumentRelationsModule } from './document_relations/document_relations
 import { AuditLogModule } from './audit_log/audit_log.module';
 import { DepartmentsModule } from './departments/departments.module';
 import { DocumentFilesModule } from './document_files/document_files.module';
+import { PrismaModule } from './prisma/prisma.module';
 
 @Module({
-  imports: [UsersModule, DocumentsModule, AlertsModule, DocumentAssignmentsModule, DocumentRelationsModule, AuditLogModule, DepartmentsModule, DocumentFilesModule],
+  imports: [PrismaModule, UsersModule, DocumentsModule, AlertsModule, DocumentAssignmentsModule, DocumentRelationsModule, AuditLogModule, DepartmentsModule, DocumentFilesModule],
   controllers: [AppController],
   providers: [AppService],
 })

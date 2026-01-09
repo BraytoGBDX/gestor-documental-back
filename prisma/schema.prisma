@@ -4,21 +4,25 @@ generator client {
 
 datasource db {
   provider = "mysql"
-  url      = env("DATABASE_URL")
 }
 
 model Departments {
-  id          Int     @id @default(autoincrement())
-  name        String
-  parentId    Int?    @map("parent_id")
-  level       Int
-  isActive    Boolean   @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id        Int      @id @default(autoincrement())
+  name      String
+  parentId  Int?     @map("parent_id")
+  level     Int
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  parent   Departments? @relation("DepartmentHierarchy", fields: [parentId], references: [id])
+  notifications Notifications[]
+
+  parent   Departments?  @relation("DepartmentHierarchy", fields: [parentId], references: [id])
   children Departments[] @relation("DepartmentHierarchy")
 
+  users               Users[]
+  sentAssignments     Documents_assignments[] @relation("FromDepartment")
+  receivedAssignments Documents_assignments[] @relation("ToDepartment")
 }
 
 enum USER_ROLE {
@@ -28,25 +32,30 @@ enum USER_ROLE {
 }
 
 model Users {
+  id           Int       @id @default(autoincrement())
+  name         String
+  lastname     String
+  departmentId Int
+  role         USER_ROLE
+  isActive     Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  notifications Notifications[]
+  auditLogs     Audit_log[]
+
+  department Departments @relation(fields: [departmentId], references: [id])
+
+  documents            Documents[]
+  documentsAssignments Documents_assignments[]
+  documentFiles        DocumentFile[]
+
   @@index([departmentId])
   @@index([role])
   @@index([isActive])
-
-
-  id              Int      @id @default(autoincrement())
-  name            String
-  lastname        String
-  departmentId    Int
-  role            USER_ROLE
-  isActive        Boolean   @default(true)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-
-  department      Departments @relation(fields: [departmentId], references: [id])
-
 }
 
-enum STATUS_DOC{
+enum STATUS_DOC {
   PENDIENTE
   ENPROCESO
   VENCIDO
@@ -56,124 +65,127 @@ enum STATUS_DOC{
 enum TYPE_DOC {
   OFICIO
   ACUSE
-  VOLANTE
 }
 
-model Documents{
+model Documents {
+  id           Int        @id @default(autoincrement())
+  type         TYPE_DOC
+  numSolicitud String
+  status       STATUS_DOC @default(PENDIENTE)
+  userId       Int
+  volante      String?
+  folio        String?
+  comments     Json?
+  asunto       String
+  createdAt    DateTime
+  isArchived   Boolean    @default(false)
+  archivedAt   DateTime?  @map("archived_at")
+  expiredAt    DateTime?
+
+  notifications Notifications[]
+  auditLogs     Audit_log[]
+
+  created_by           Users                   @relation(fields: [userId], references: [id])
+  file                 DocumentFile?
+  mainRelations        Document_relations[]    @relation("MainDocument")
+  relatedRelations     Document_relations[]    @relation("RelatedDocument")
+  documentsAssignments Documents_assignments[]
+
   @@index([userId])
   @@index([status])
   @@index([isArchived])
   @@index([type])
   @@index([status, isArchived])
   @@index([userId, isArchived])
- 
-
-  id             Int             @id @default(autoincrement())
-  tittle         String
-  type           TYPE_DOC
-  status         STATUS_DOC      @default(PENDIENTE)
-  userId         Int
-  isArchived     Boolean         @default(false)
-  archivedAt     DateTime? @map("archived_at")
-  expiredAt      DateTime?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt 
-
-  created_by     Users @relation(fields: [userId], references: [id])
-  file           DocumentFile?
 }
 
 model DocumentFile {
+  id         Int @id @default(autoincrement())
+  documentId Int @unique
+
+  name       String
+  userId     Int
+  filePath   String
+  uploadedAt DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  document   Documents @relation(fields: [documentId], references: [id], onDelete: Restrict)
+  created_by Users     @relation(fields: [userId], references: [id])
+
   @@index([documentId])
-  @@index([checksum])
-
-  id           Int      @id @default(autoincrement())
-  documentId   Int      @unique
-
-  originalName String
-  storedName   String
-  filePath     String
-  fileSize     Int
-  uploadedAt   DateTime @default(now())
-
-  document Documents @relation(fields: [documentId], references: [id], onDelete: Restrict)
-
 }
-
 
 enum ACCESS_TYPE {
   READ
   WRITE
 }
 
-model Documents_assignments{
-  @@index([departmentId])
+model Documents_assignments {
+  id               Int         @id @default(autoincrement())
+  documentId       Int
+  fromDepartmentId Int
+  toDepartmentId   Int
+  userId           Int
+  assignedAt       DateTime    @default(now())
+  unassignedAt     DateTime?   @map("unassigned_at")
+  accessType       ACCESS_TYPE
+  sequenceOrder    Int
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+
+  notifications Notifications[]
+
+  assigned_by    Users       @relation(fields: [userId], references: [id])
+  fromDepartment Departments @relation("FromDepartment", fields: [fromDepartmentId], references: [id])
+  toDepartment   Departments @relation("ToDepartment", fields: [toDepartmentId], references: [id])
+  document       Documents   @relation(fields: [documentId], references: [id])
+
+  @@unique([documentId, toDepartmentId, unassignedAt])
+  @@unique([documentId, toDepartmentId, sequenceOrder])
+  @@index([fromDepartmentId])
   @@index([documentId])
+  @@index([toDepartmentId])
   @@index([userId])
-  @@index([departmentId, accessType])
+  @@index([toDepartmentId, accessType])
   @@index([documentId, sequenceOrder])
-  @@index([departmentId, unassignedAt])
-
-
-  id             Int             @id @default(autoincrement())
-  documentId     Int
-  departmentId   Int
-  userId         Int
-  assignedAt     DateTime        @default(now())
-  unassignedAt  DateTime? @map("unassigned_at")
-  accessType     ACCESS_TYPE
-  sequenceOrder  Int
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-
-  assigned_by    Users @relation(fields: [userId], references: [id])
-  assigned_to    Departments @relation(fields: [departmentId], references: [id])
-  document       Documents @relation(fields: [documentId], references: [id])
-
-  @@unique([documentId, departmentId, unassignedAt])
-  @@unique([documentId, departmentId, sequenceOrder])
-
 }
 
-enum RELATION_TYPE{
+enum RELATION_TYPE {
   ANEXO
   RESPUESTA
 }
 
-model Document_relations{
-  @@index([documentId])
-  @@index([relatedDocumentId])
-
-  id                      Int            @id @default(autoincrement())
-  documentId              Int
-  relatedDocumentId       Int
-  relationType            RELATION_TYPE
-  createdAt               DateTime @default(now())
-  updatedAt               DateTime @updatedAt
+model Document_relations {
+  id                Int           @id @default(autoincrement())
+  documentId        Int
+  relatedDocumentId Int
+  relationType      RELATION_TYPE
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
 
   document         Documents @relation("MainDocument", fields: [documentId], references: [id])
   related_document Documents @relation("RelatedDocument", fields: [relatedDocumentId], references: [id])
+
+  @@index([documentId])
+  @@index([relatedDocumentId])
 }
 
+model Audit_log {
+  id         Int          @id @default(autoincrement())
+  documentId Int
+  action     AUDIT_ACTION
+  userId     Int
+  details    Json?
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
 
-model Audit_log{
+  document  Documents @relation(fields: [documentId], references: [id])
+  action_by Users     @relation(fields: [userId], references: [id])
+
   @@index([documentId])
   @@index([userId])
   @@index([action])
   @@index([documentId, createdAt])
-
-
-  id            Int         @id @default(autoincrement())
-  documentId    Int
-  action        AUDIT_ACTION
-  userId        Int
-  details       Json?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
-  document          Documents @relation(fields: [documentId], references: [id])
-  action_by         Users @relation(fields: [userId], references: [id])
-
 }
 
 enum AUDIT_ACTION {
@@ -182,33 +194,30 @@ enum AUDIT_ACTION {
   VENCIDO
 }
 
-model Notifications{
+model Notifications {
+  id               Int        @id @default(autoincrement())
+  userId           Int
+  departmentId     Int
+  documentId       Int
+  assignmentId     Int
+  notificationType ALERT_TYPE
+  message          String
+  isRead           Boolean    @default(false)
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+
+  user       Users                 @relation(fields: [userId], references: [id])
+  department Departments           @relation(fields: [departmentId], references: [id])
+  document   Documents             @relation(fields: [documentId], references: [id])
+  assignment Documents_assignments @relation(fields: [assignmentId], references: [id])
+
   @@index([userId, isRead])
   @@index([departmentId])
-
-  id                  Int         @id @default(autoincrement())
-  userId              Int
-  departmentId        Int
-  documentId          Int
-  assignmentId        Int
-  notificationType    ALERT_TYPE
-  message             String
-  isRead              Boolean   @default(false)
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-
-  user         Users @relation(fields: [userId], references: [id])
-  department   Departments @relation(fields: [departmentId], references: [id])
-  document     Documents @relation(fields: [documentId], references: [id])
-  assignment   Documents_assignments @relation(fields: [assignmentId], references: [id])
-
 }
 
-enum ALERT_TYPE{
+enum ALERT_TYPE {
   AVISO
   URGENTE
   PENDIENTE
   VENCIMIENTO
 }
-
-
