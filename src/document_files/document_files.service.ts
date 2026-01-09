@@ -11,7 +11,6 @@ export class DocumentFilesService {
     const data: any = {
       documentId: createDocumentFileDto.documentId != null ? Number(createDocumentFileDto.documentId) : undefined,
       name: createDocumentFileDto.name != null ? String(createDocumentFileDto.name) : undefined,
-      userId: createDocumentFileDto.userId != null ? Number(createDocumentFileDto.userId) : undefined,
       filePath: createDocumentFileDto.filePath != null ? String(createDocumentFileDto.filePath) : undefined,
     };
 
@@ -38,7 +37,6 @@ export class DocumentFilesService {
     const data: any = {};
     if (updateDocumentFileDto.documentId !== undefined) data.documentId = Number(updateDocumentFileDto.documentId);
     if (updateDocumentFileDto.name !== undefined) data.name = String(updateDocumentFileDto.name);
-    if (updateDocumentFileDto.userId !== undefined) data.userId = Number(updateDocumentFileDto.userId);
     if (updateDocumentFileDto.filePath !== undefined) data.filePath = String(updateDocumentFileDto.filePath);
 
     return this.prisma.documentFile.update({ where: { id }, data });

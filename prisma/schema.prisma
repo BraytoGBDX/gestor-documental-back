@@ -49,7 +49,6 @@ model Users {
 
   documents            Documents[]
   documentsAssignments Documents_assignments[]
-  documentFiles        DocumentFile[]
 
   @@index([departmentId])
   @@index([role])
@@ -107,13 +106,11 @@ model DocumentFile {
   documentId Int @unique
 
   name       String
-  userId     Int
   filePath   String
   uploadedAt DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
   document   Documents @relation(fields: [documentId], references: [id], onDelete: Restrict)
-  created_by Users     @relation(fields: [userId], references: [id])
 
   @@index([documentId])
 }

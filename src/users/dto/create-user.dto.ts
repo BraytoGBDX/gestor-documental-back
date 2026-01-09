@@ -18,7 +18,7 @@ export class CreateUserDto {
   @IsString()
   lastname: string;
 
-  @ApiProperty({ example: 3 })
+  @ApiProperty({required:false, example: 3 })
   @IsInt()
   @Min(1)
   departmentId: number;

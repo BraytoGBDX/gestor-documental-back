@@ -2,6 +2,8 @@ import { Injectable, BadRequestException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from '../prisma/prisma.service';
+import { USER_ROLE } from '@prisma/client';
+
 
 @Injectable()
 export class UsersService {
@@ -11,7 +13,7 @@ export class UsersService {
     const data: any = {
       name: createUserDto.name != null ? String(createUserDto.name) : undefined,
       lastname: createUserDto.lastname != null ? String(createUserDto.lastname) : undefined,
-      departmentId: createUserDto.departmentId != null ? Number(createUserDto.departmentId) : undefined,
+      departmentId: createUserDto.role === USER_ROLE.SUPERADMIN ? null : createUserDto.departmentId,
       role: createUserDto.role != null ? String(createUserDto.role) : undefined,
       isActive: createUserDto.isActive != null ? Boolean(createUserDto.isActive) : true,
     };

@@ -15,11 +15,6 @@ export class CreateDocumentFileDto {
   @IsString()
   name: string;
 
-  @ApiProperty({ example: 25 })
-  @IsInt()
-  @Min(1)
-  userId: number;
-
   @ApiProperty({
     example: '/uploads/documents/oficio_123.pdf',
     description: 'Ruta o URL del archivo',
